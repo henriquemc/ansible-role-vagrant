@@ -11,9 +11,10 @@ This role requires Ansible 1.4 or higher and platform requirements are listed in
 Role Variables
 --------------
 
-# Install version any version "1.7.2" or "latest"
+# Use "latest" for use last release
 vagrant_version: "latest"
-# Set arch
+
+# Set arch: "x86_64" or "i686"
 vagrant_arch: "x86_64"
 
 Dependencies
