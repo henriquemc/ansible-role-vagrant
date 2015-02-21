@@ -1,0 +1,57 @@
+---
+- name: Check if Vagrant is already installed
+  stat: path=/usr/bin/vagrant
+  register: vagrant_installed
+
+- name: Get Vagrant current version
+  shell: "vagrant --version | awk '{print $2}'"
+  register: vagrant_current_version
+  when: vagrant_installed.stat.exists == True
+  changed_when: false
+
+- name: download page with latest version
+  get_url: url=http://www.vagrantup.com/downloads.html dest=/tmp/latest-vagrant.html mode=0440
+  changed_when: false
+
+- name: Extracting Vagrant latest version
+  shell: cat /tmp/latest-vagrant.html | grep -o 'vagrant_.*\.dmg' | grep -o  '[0-9][0-9]*[\.][0-9][0-9]*[\.][0-9][0-9]*'
+  register: vagrant_latestVersion
+  changed_when: false
+
+- file: path=/tmp/latest-vagrant.html state=absent
+  changed_when: false
+
+- debug: msg="Vagrant latest version = {{ vagrant_latestVersion.stdout }} choosed vagrant = {{ vagrant_version }}"
+
+- set_fact:
+     vagrant_version: "{{ vagrant_latestVersion.stdout }}"
+  when: vagrant_version == 'latest'
+
+- set_fact:
+     downloadAndInstall: True
+  when: vagrant_installed.stat.exists == False  
+
+- debug: msg="vagrant_current_version - {{ vagrant_current_version.stdout }} ne vagrant_version- {{ vagrant_version }} =  {{ vagrant_current_version.stdout | version_compare(vagrant_version, 'ne') }}"
+  when: vagrant_installed.stat.exists == True  
+
+- set_fact:
+     downloadAndInstall: "{{ vagrant_current_version.stdout | version_compare(vagrant_version, 'ne') }}"
+  when: vagrant_installed.stat.exists == True  
+
+- debug: msg="Installing vagrant {{ vagrant_version }}"
+  when: downloadAndInstall | bool
+
+- name: Removing existing vagrant
+  apt: name=vagrant state=absent
+  sudo: yes
+  when: downloadAndInstall | bool
+
+- name: Download Vagrant 
+  get_url: url=https://dl.bintray.com/mitchellh/vagrant/vagrant_{{ vagrant_version }}_{{ vagrant_arch }}.deb
+           dest=/tmp/vagrant_{{ vagrant_version }}_{{ vagrant_arch }}.deb
+  when: downloadAndInstall | bool
+  
+- name: Install Vagrant
+  apt: deb=/tmp/vagrant_{{ vagrant_version }}_{{ vagrant_arch }}.deb state=installed 
+  sudo: yes
+  when: downloadAndInstall | bool

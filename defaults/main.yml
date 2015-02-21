@@ -1,0 +1,6 @@
+---
+# defaults file for henriquemc.vagrant
+
+vagrant_version: "latest" # Use latest for new releases
+vagrant_arch: "x86_64"
+vagrant_latestVersion: ""
