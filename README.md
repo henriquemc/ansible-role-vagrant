@@ -1,4 +1,4 @@
-Role Name
+henrique.vagrant
 =========
 
 An Ansible role for installing Vagrant.
@@ -11,11 +11,8 @@ This role requires Ansible 1.4 or higher and platform requirements are listed in
 Role Variables
 --------------
 
-# Use "latest" for use last release
-vagrant_version: "latest"
-
-# Set arch: "x86_64" or "i686"
-vagrant_arch: "x86_64"
+vagrant_version: "latest" # Use "latest" for use last release
+vagrant_arch: "x86_64" # Set arch: "x86_64" or "i686"
 
 Dependencies
 ------------
